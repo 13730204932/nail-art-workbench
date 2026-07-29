@@ -285,6 +285,7 @@ input:focus,select:focus,textarea:focus{outline:none;}
 </div>
 
 <script src="qrcode.js"></script>
+<script src="sync.js"></script>
 <script>
 /* ====== 数据层（仅读取公开字段，绝不加载后台私密数据） ====== */
 const K={shop:'mj_shop_v3',sched:'mj_sched_v3',proj:'mj_proj_v3',book:'mj_book_v3',gal:'mj_gal_v3',price:'mj_price_v3',tut:'mj_tut_v3',uid:'mj_uid_v3'};
@@ -294,7 +295,7 @@ const defProj=[{key:'bjs',name:'本甲纯色',color:'#CDE3C4',dur:1},{key:'bjt',
 const defPrice={base:{bjs:99,bjt:159,btj:139,btt:199},addon:[{name:'简单饰品',price:15},{name:'复杂饰品',price:30},{name:'延长',price:40}],remove:20,quotes:[]};
 const defTut=[{id:'t1',title:'新手如何跟顾客确认款式',body:'建议顾客先在图库选好参考图并上传，沟通时确认长度、形状、配色，避免返工。'},{id:'t2',title:'到店流程标准化',body:'洗手消毒→修甲形→推死皮→涂底胶→上色→封层→拍照。每步确认顾客满意度。'}];
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));if(window.Cloud)Cloud.push();}
 let shop=load(K.shop,defShop),sched=load(K.sched,defSched),proj=load(K.proj,defProj),price=load(K.price,defPrice),tut=load(K.tut,defTut);
 let bookings=load(K.book,[]);
 let uid=localStorage.getItem(K.uid)||'';
@@ -548,6 +549,22 @@ function applyShop(){
 }
 applyShop();renderCal();refreshLoginUI();
 if(!shop.channelOpen){/* 通道关闭时日历显示暂停 */}
+
+/* 云端同步：以 GitHub 私有数据仓库为准，localStorage 作本地缓存，轮询约12秒准实时同步 */
+function loadState(){
+  shop=load(K.shop,defShop);sched=load(K.sched,defSched);proj=load(K.proj,defProj);
+  price=load(K.price,defPrice);tut=load(K.tut,defTut);bookings=load(K.book,[]);
+  uid=localStorage.getItem(K.uid)||'';me=uid?load(K.uid+'_me',null):null;
+}
+if(window.Cloud){
+  Cloud.onPull=function(){
+    loadState();applyShop();renderCal();refreshLoginUI();
+    const a=document.querySelector('.page.active');
+    if(a&&a.id==='pg-mine')renderMine();
+    if(a&&a.id==='pg-gal')renderGal();
+  };
+  Cloud.startAuto();
+}
 </script>
 </body>
 </html>
