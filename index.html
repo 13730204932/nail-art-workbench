@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="小王美甲预约">
+<title>小王美甲 · 在线预约</title>
+<style>
+:root{
+  --cream:#FBF6F0;--cream-2:#F5EDE3;--cream-3:#EFE3D6;
+  --pink:#F0C9B8;--pink-soft:#F7DFD3;--pink-deep:#E8B5A0;
+  --brown:#8B6F5C;--brown-deep:#6B5444;
+  --text:#5A4A3C;--text-light:#9B8A7A;
+  --green:#CDE3C4;--green-t:#5A7A4A;
+  --purple:#E4D8F0;--purple-t:#7A5A9A;
+  --blue:#D2E4F0;--blue-t:#3A6FA8;
+  --red:#D88B7A;--red-t:#C85A4A;
+  --grey:#E0D9D0;--grey-t:#8A7B6B;
+  --shadow:0 2px 12px rgba(139,111,92,0.08);
+  --radius:14px;--radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:var(--cream);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--text);}
+input:focus,select:focus,textarea:focus{outline:none;}
+::-webkit-scrollbar{display:none;}
+.wrap{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+/* 顶部 */
+.topbar{position:sticky;top:0;z-index:40;background:rgba(251,246,240,0.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--cream-3);padding:calc(env(safe-area-inset-top) + 10px) 14px 9px;display:flex;align-items:center;justify-content:space-between;}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.shop-name{font-weight:700;font-size:17px;color:var(--brown-deep);}
+.sync-tip{font-size:11px;color:var(--text-light);margin-top:1px;}
+.top-actions{display:flex;gap:8px;}
+.btn{background:var(--cream-2);color:var(--brown-deep);border-radius:var(--radius-sm);padding:9px 14px;font-size:14px;font-weight:600;transition:.15s;}
+.btn:active{transform:scale(.96);}
+.btn-pri{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:var(--shadow);}
+.btn-ghost{background:transparent;border:1px solid var(--cream-3);color:var(--brown);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-sm{padding:7px 11px;font-size:13px;}
+.btn-block{width:100%;justify-content:center;}
+/* 内容 */
+.content{flex:1;overflow-y:auto;padding:14px 14px 90px;}
+/* 周历 */
+.week-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.week-nav .title{flex:1;text-align:center;font-weight:700;color:var(--brown-deep);font-size:15px;}
+.week-nav .arrow{width:36px;height:36px;border-radius:10px;background:var(--cream-2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--brown);}
+.remaining{background:var(--cream-2);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--brown);margin-bottom:12px;text-align:center;}
+.remaining b{color:var(--red-t);}
+.cal{display:grid;grid-template-columns:54px repeat(7,1fr);gap:5px;}
+.cal .corner{font-size:11px;color:var(--text-light);display:flex;align-items:center;justify-content:center;}
+.cal .dow{font-size:11px;text-align:center;color:var(--brown);padding-bottom:2px;}
+.cal .dow .dnum{display:block;font-size:13px;font-weight:700;color:var(--brown-deep);}
+.cal .dow.today .dnum{color:var(--red-t);}
+.cal .tlabel{font-size:11px;color:var(--text-light);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+.slot{height:42px;border-radius:8px;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2px;line-height:1.15;transition:.12s;}
+.slot.open{background:var(--green-soft,#E2EFDC);cursor:pointer;}
+.slot.open:active{transform:scale(.94);}
+.slot.locked{background:var(--grey);color:var(--grey-t);cursor:not-allowed;}
+.slot.closed{background:repeating-linear-gradient(45deg,var(--cream-2),var(--cream-2) 4px,var(--cream-3) 4px,var(--cream-3) 8px);color:var(--text-light);cursor:not-allowed;font-size:9px;}
+.slot .pname{font-weight:600;font-size:9.5px;}
+/* 区块 */
+.card{background:#fff;border:1px solid var(--cream-3);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-weight:700;font-size:15px;color:var(--brown-deep);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.note{font-size:12px;color:var(--text-light);margin-top:8px;line-height:1.5;}
+/* 图库 */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.gal-grid img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;background:var(--cream-2);}
+/* 列表 */
+.list-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--cream-3);}
+.list-item:last-child{border-bottom:none;}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--cream-2);color:var(--brown);}
+.tag.done{background:var(--green);color:var(--green-t);}
+.tag.pending{background:var(--pink-soft);color:var(--red-t);}
+.tag.cancel{background:var(--grey);color:var(--grey-t);}
+.tag.timeout{background:#F3D9D2;color:var(--red-t);}
+/* 聊价 */
+.chat{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;}
+.bubble{max-width:80%;padding:9px 12px;border-radius:14px;font-size:14px;}
+.bubble.ai{background:var(--cream-2);align-self:flex-start;border-bottom-left-radius:4px;}
+.bubble.me{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.chat-input{display:flex;gap:8px;margin-top:10px;}
+.chat-input input{flex:1;border:1px solid var(--cream-3);border-radius:var(--radius-sm);padding:9px 12px;background:var(--cream);}
+/* 底部 tab */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(251,246,240,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--cream-3);display:flex;padding:6px 4px calc(env(safe-area-inset-bottom) + 6px);max-width:560px;margin:0 auto;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;color:var(--text-light);font-size:11px;}
+.tab.active{color:var(--red-t);font-weight:700;}
+.tab .ic{font-size:18px;line-height:1;}
+.page{display:none;}
+.page.active{display:block;}
+/* 弹窗 */
+.mask{position:fixed;inset:0;z-index:100;background:rgba(91,74,60,0.45);display:none;align-items:center;justify-content:center;padding:20px;}
+.mask.show{display:flex;}
+.sheet{background:var(--cream);border-radius:18px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:18px;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sheet-head h3{font-size:17px;color:var(--brown-deep);}
+.sheet .close{font-size:20px;color:var(--text-light);width:30px;height:30px;}
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:13px;color:var(--brown);margin-bottom:5px;font-weight:600;}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--cream-3);border-radius:var(--radius-sm);padding:11px 12px;background:var(--cream);}
+.field input:disabled{background:var(--cream-2);color:var(--text-light);}
+.bar-link{display:flex;gap:8px;margin-top:12px;}
+.bar-link .btn{flex:1;}
+/* 上传 */
+.upload-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.upload-add{width:68px;height:68px;border:1.5px dashed var(--pink-deep);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--red-t);font-size:12px;flex-shrink:0;}
+.upload-add .plus{font-size:26px;line-height:1;font-weight:300;}
+.thumb{position:relative;width:68px;height:68px;border-radius:12px;overflow:hidden;flex-shrink:0;}
+.thumb img{width:100%;height:100%;object-fit:cover;}
+.thumb .del{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;}
+/* 强制提示 */
+.force .sheet{border:2px solid var(--pink-deep);}
+.force-list{font-size:14px;line-height:1.7;color:var(--text);}
+.force-list li{margin-bottom:6px;}
+.force-list .ok{color:var(--green-t);font-weight:700;}
+/* 登录 */
+.login-hero{text-align:center;padding:30px 10px;}
+.login-hero .big{font-size:20px;font-weight:800;color:var(--brown-deep);margin-bottom:8px;}
+.login-hero p{font-size:13px;color:var(--text-light);margin-bottom:20px;}
+.wx-btn{background:#07C160;color:#fff;border-radius:var(--radius-sm);padding:13px;width:100%;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;}
+.manual-link{text-align:center;font-size:12px;color:var(--text-light);margin-top:14px;text-decoration:underline;}
+.empty{text-align:center;color:var(--text-light);font-size:13px;padding:30px 0;}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(91,74,60,.92);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:200;opacity:0;transition:.25s;pointer-events:none;max-width:80%;text-align:center;}
+.toast.show{opacity:1;}
+.fab-share{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom) + 74px);z-index:45;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:var(--shadow-md);max-width:none;margin:0;}
+.section-h{font-weight:700;font-size:16px;color:var(--brown-deep);margin:6px 2px 10px;}
+.qr-box{text-align:center;background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;}
+.qr-box img{width:220px;height:220px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar" id="topbar">
+    <div class="lft" style="display:flex;align-items:center;gap:9px;min-width:0;">
+      <div class="logo" id="logoBox">王</div>
+      <div style="min-width:0;">
+        <div class="shop-name" id="shopName">小王美甲</div>
+        <div class="sync-tip">排班实时同步 · 在线预约</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost btn-sm" id="loginBtn" onclick="openLogin()">微信登录</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- 预约页 -->
+    <div class="page active" id="pg-book">
+      <div class="week-nav">
+        <button class="arrow" onclick="shiftWeek(-1)">‹</button>
+        <div class="title" id="weekTitle">本周</div>
+        <button class="arrow" onclick="shiftWeek(1)">›</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:10px;" onclick="jumpToday()">回到今天</button>
+      <div class="remaining" id="remaining">加载中…</div>
+      <div class="cal" id="cal"></div>
+      <div class="note" id="noticeBox"></div>
+    </div>
+
+    <!-- 我的预约 -->
+    <div class="page" id="pg-mine">
+      <div class="section-h">我的预约记录</div>
+      <div id="mineList"></div>
+    </div>
+
+    <!-- 款式图库 -->
+    <div class="page" id="pg-gal">
+      <div class="section-h">美甲款式参考</div>
+      <div class="gal-grid" id="galGrid"></div>
+    </div>
+
+    <!-- AI 报价 -->
+    <div class="page" id="pg-price">
+      <div class="section-h">AI 智能报价</div>
+      <div class="card">
+        <div class="chat" id="chatBox"></div>
+        <div class="chat-input">
+          <input id="chatInput" placeholder="说点什么，或上传图片问价…" onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-pri btn-sm" onclick="sendChat()">发送</button>
+        </div>
+        <div class="note">提示：点击下方项目可快速获取报价。</div>
+        <div class="bar-link" id="priceQuick"></div>
+      </div>
+    </div>
+
+    <!-- 教程 -->
+    <div class="page" id="pg-tut">
+      <div class="section-h">美甲运营参考</div>
+      <div id="tutList"></div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" data-view="book" onclick="switchTab('book')"><span class="ic">[]</span>预约</div>
+    <div class="tab" data-view="mine" onclick="switchTab('mine')"><span class="ic">@</span>我的</div>
+    <div class="tab" data-view="gal" onclick="switchTab('gal')"><span class="ic">#</span>图库</div>
+    <div class="tab" data-view="price" onclick="switchTab('price')"><span class="ic">¥</span>报价</div>
+    <div class="tab" data-view="tut" onclick="switchTab('tut')"><span class="ic">i</span>教程</div>
+  </div>
+
+  <button class="fab-share" onclick="openShare()">分享</button>
+</div>
+
+<!-- 登录弹窗 -->
+<div class="mask" id="loginMask">
+  <div class="sheet">
+    <div class="login-hero">
+      <div class="big" id="loginTitle">微信一键登录</div>
+      <p>登录后可在线预约美甲，自动同步你的微信信息</p>
+      <button class="wx-btn" onclick="wechatLogin()">微信一键登录</button>
+      <div class="manual-link" onclick="toggleManual()">无法登录？手动填写 ›</div>
+    </div>
+    <div id="manualBox" style="display:none;">
+      <div class="field"><label>昵称</label><input id="mName" placeholder="你的称呼"></div>
+      <div class="field"><label>联系方式</label><input id="mContact" placeholder="手机号 / 微信"></div>
+      <button class="btn btn-pri btn-block" onclick="manualLogin()">确认登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 预约弹窗 -->
+<div class="mask" id="bookMask">
+  <div class="sheet">
+    <div class="sheet-head"><h3>填写预约信息</h3><button class="close" onclick="closeMask('bookMask')">✕</button></div>
+    <div class="field">
+      <label>微信昵称</label>
+      <input id="bkName" disabled>
+    </div>
+    <div class="field">
+      <label>联系方式</label>
+      <input id="bkContact" disabled>
+    </div>
+    <div class="field">
+      <label>服务项目</label>
+      <select id="bkProj"></select>
+    </div>
+    <div class="field">
+      <label>美甲参考图（可多张）</label>
+      <div class="upload-row" id="bkUploads">
+        <div class="upload-add" onclick="document.getElementById('bkFile').click()"><span class="plus">+</span>上传</div>
+        <input type="file" id="bkFile" accept="image/*" multiple style="display:none" onchange="handleBkFiles(this)">
+      </div>
+    </div>
+    <div class="field">
+      <label>服务备注（选填）</label>
+      <textarea id="bkNote" rows="2" placeholder="款式、卸甲、修补、饰品需求…"></textarea>
+    </div>
+    <div class="bar-link">
+      <button class="btn btn-ghost" onclick="closeMask('bookMask')">取消</button>
+      <button class="btn btn-red" onclick="submitBook()">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- 强制成功提示 -->
+<div class="mask force" id="successMask">
+  <div class="sheet">
+    <div class="sheet-head"><h3><span class="ok" style="color:var(--green-t)">✓</span> 预约成功温馨提示</h3></div>
+    <ul class="force-list">
+      <li>1. 请按照预约时间准时到店做美甲；</li>
+      <li>2. 若迟到超过 <b>15 分钟</b>，当前预约时段自动作废，需要重新线上预约；</li>
+      <li>3. 临时无法到店可提前取消订单，避免占用档期。</li>
+    </ul>
+    <div class="bar-link">
+      <button class="btn btn-pri btn-block" onclick="closeSuccess()">我已知晓</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分享弹窗 -->
+<div class="mask" id="shareMask">
+  <div class="sheet">
+    <div class="sheet-head"><h3>分享预约页</h3><button class="close" onclick="closeMask('shareMask')">✕</button></div>
+    <div class="qr-box"><div id="qrImg"></div></div>
+    <div class="field"><label>预约链接</label><input id="shareUrl" readonly></div>
+    <div class="bar-link">
+      <button class="btn btn-pri btn-block" onclick="copyShare()">复制链接</button>
+      <button class="btn btn-ghost" onclick="downloadQR()">下载二维码</button>
+    </div>
+    <div class="note">把二维码发到朋友圈/微信群，或打印贴在店里。客人扫码直达本预约页，看不到商家后台。</div>
+  </div>
+</div>
+
+<script src="qrcode.js"></script>
+<script>
+/* ====== 数据层（仅读取公开字段，绝不加载后台私密数据） ====== */
+const K={shop:'mj_shop_v3',sched:'mj_sched_v3',proj:'mj_proj_v3',book:'mj_book_v3',gal:'mj_gal_v3',price:'mj_price_v3',tut:'mj_tut_v3',uid:'mj_uid_v3'};
+const defShop={name:'小王美甲',notice:'请按照预约时间准时到店；迟到超过 15 分钟，预约时段自动作废，需重新线上预约。临时无法到店请提前取消，避免占用档期。',channelOpen:true,closedDays:[]};
+const defSched={times:[{time:'10:00',proj:'bjs'},{time:'14:00',proj:'bjt'},{time:'16:00',proj:'btj'}]};
+const defProj=[{key:'bjs',name:'本甲纯色',color:'#CDE3C4',dur:1},{key:'bjt',name:'本甲款式',color:'#E4D8F0',dur:1.5},{key:'btj',name:'半贴纯色',color:'#F7DFD3',dur:1.5},{key:'btt',name:'半贴款式',color:'#D2E4F0',dur:2}];
+const defPrice={base:{bjs:99,bjt:159,btj:139,btt:199},addon:[{name:'简单饰品',price:15},{name:'复杂饰品',price:30},{name:'延长',price:40}],remove:20,quotes:[]};
+const defTut=[{id:'t1',title:'新手如何跟顾客确认款式',body:'建议顾客先在图库选好参考图并上传，沟通时确认长度、形状、配色，避免返工。'},{id:'t2',title:'到店流程标准化',body:'洗手消毒→修甲形→推死皮→涂底胶→上色→封层→拍照。每步确认顾客满意度。'}];
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+let shop=load(K.shop,defShop),sched=load(K.sched,defSched),proj=load(K.proj,defProj),price=load(K.price,defPrice),tut=load(K.tut,defTut);
+let bookings=load(K.book,[]);
+let uid=localStorage.getItem(K.uid)||'';
+let me=uid?load(K.uid+'_me',null):null;
+
+/* ====== 工具 ====== */
+function $(s){return document.querySelector(s);}
+function $all(s){return document.querySelectorAll(s);}
+function esc(t){return (t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function toast(m){const t=$('#toast');if(!t){const d=document.createElement('div');d.className='toast';d.id='toast';document.body.appendChild(d);}const el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800);}
+function closeMask(id){$('#'+id).classList.remove('show');}
+function getWeekDates(offset){
+  const now=new Date();const dow=(now.getDay()+6)%7;const monday=new Date(now);monday.setDate(now.getDate()-dow+offset*7);monday.setHours(0,0,0,0);
+  const arr=[];for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(monday.getDate()+i);arr.push(d);}return arr;
+}
+function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function isClosed(dateStr){return shop.closedDays.includes(dateStr);}
+function findBook(date,time){return bookings.find(b=>b.date===date&&b.time===time&&(b.status==='pending'||b.status==='done'));}
+function projByKey(k){return proj.find(p=>p.key===k);}
+let weekOffset=0;
+
+/* ====== 顶部与登录态 ====== */
+function refreshLoginUI(){
+  const b=$('#loginBtn');
+  if(me){b.textContent='退出';b.onclick=logout;}
+  else{b.textContent='微信登录';b.onclick=openLogin;}
+}
+function openLogin(){$('#loginMask').classList.add('show');}
+function toggleManual(){$('#manualBox').style.display=$('#manualBox').style.display==='none'?'block':'none';}
+function wechatLogin(){
+  // 真实环境需接入微信网页授权(需公众号AppID)。此处为可信模拟：成功后自动填充微信昵称与联系方式。
+  toast('正在微信授权…');
+  setTimeout(()=>{
+    const nick='微信用户'+Math.floor(1000+Math.random()*9000);
+    finishLogin(nick,'wx_'+Date.now(),'138****'+(1000+Math.floor(Math.random()*9000)));
+  },700);
+}
+function manualLogin(){
+  const n=$('#mName').value.trim(),c=$('#mContact').value.trim();
+  if(!n||!c){toast('请填写昵称和联系方式');return;}
+  finishLogin(n,'u_'+Date.now(),c);
+}
+function finishLogin(nick,id,contact){
+  uid=id;me={nickname:nick,contact:contact};
+  localStorage.setItem(K.uid,uid);save(uid+'_me',me);
+  $('#loginMask').classList.remove('show');
+  refreshLoginUI();switchTab('book');toast('登录成功，欢迎预约');
+}
+function logout(){
+  if(!confirm('退出当前账号？'))return;
+  uid='';me=null;localStorage.removeItem(K.uid);localStorage.removeItem(uid+'_me');
+  refreshLoginUI();toast('已退出');
+}
+function requireLogin(){
+  if(me)return true;
+  openLogin();toast('请先登录后再预约');return false;
+}
+
+/* ====== 周历 ====== */
+function renderCal(){
+  const dates=getWeekDates(weekOffset);
+  const start=dates[0],end=dates[6];
+  const wk=weekOffset===0?'本周':(weekOffset<0?(-weekOffset)+'周前':weekOffset+'周后');
+  $('#weekTitle').textContent=wk;
+  const cal=$('#cal');cal.innerHTML='';
+  const corner=document.createElement('div');corner.className='corner';corner.textContent='时段';cal.appendChild(corner);
+  const todayStr=fmt(new Date());
+  dates.forEach(d=>{
+    const el=document.createElement('div');el.className='dow';
+    const ds=fmt(d);if(ds===todayStr)el.classList.add('today');
+    el.innerHTML=dwName(d.getDay())+'<span class="dnum">'+d.getDate()+'</span>';
+    cal.appendChild(el);
+  });
+  sched.times.forEach(item=>{
+    const t=item.time;const defP=projByKey(item.proj)||proj[0];
+    const tl=document.createElement('div');tl.className='tlabel';tl.textContent=t;cal.appendChild(tl);
+    dates.forEach(d=>{
+      const ds=fmt(d);const slot=document.createElement('div');
+      if(isClosed(ds)||!shop.channelOpen){slot.className='slot closed';slot.textContent=shop.channelOpen?'休':'暂停';}
+      else{
+        const b=findBook(ds,t);
+        if(b){slot.className='slot locked';slot.innerHTML='<span>已约</span>';}
+        else{const p=defP;slot.className='slot open';slot.style.background=p.color;slot.innerHTML='<span class="pname">'+p.name+'</span>';slot.onclick=()=>openBook(ds,t,item.proj);}
+      }
+      cal.appendChild(slot);
+    });
+  });
+  renderRemaining(dates);
+}
+function dwName(n){return ['一','二','三','四','五','六','日'][n===0?6:n-1];}
+function defaultProjFor(t){
+  const it=sched.times.find(x=>x.time===t);return projByKey(it?it.proj:'')||proj[0];
+}
+function renderRemaining(dates){
+  let n=0;const ds=dates.map(fmt);
+  sched.times.forEach(t=>ds.forEach(d=>{if(!isClosed(d)&&shop.channelOpen&&!findBook(d,t))n++;}));
+  $('#remaining').innerHTML='本周剩余可预约时段 <b>'+n+'</b> 个';
+}
+function shiftWeek(d){weekOffset+=d;renderCal();}
+function jumpToday(){weekOffset=0;renderCal();switchTab('book');}
+
+/* ====== 预约弹窗 ====== */
+let curDate='',curTime='',curProj='',bkImgs=[];
+function openBook(date,time,defProj){
+  if(!requireLogin())return;
+  curDate=date;curTime=time;curProj=defProj||proj[0].key;bkImgs=[];
+  const sel=$('#bkProj');sel.innerHTML='';
+  proj.forEach(p=>{const o=document.createElement('option');o.value=p.key;o.textContent=p.name+'（约'+p.dur+'h）';sel.appendChild(o);});
+  sel.value=curProj;
+  $('#bkName').value=me.nickname;$('#bkContact').value=me.contact;
+  $('#bkNote').value='';renderBkUploads();
+  $('#bookMask').classList.add('show');
+}
+function renderBkUploads(){
+  const box=$('#bkUploads');box.querySelectorAll('.thumb').forEach(e=>e.remove());
+  bkImgs.forEach((src,i)=>{
+    const th=document.createElement('div');th.className='thumb';
+    th.innerHTML='<img src="'+src+'"><div class="del" onclick="delBk('+i+')">✕</div>';
+    box.insertBefore(th,box.querySelector('.upload-add'));
+  });
+}
+function delBk(i){bkImgs.splice(i,1);renderBkUploads();}
+function handleBkFiles(input){
+  const files=Array.from(input.files);
+  files.forEach(f=>{
+    const r=new FileReader();r.onload=e=>compress(e.target.result,src=>{bkImgs.push(src);renderBkUploads();});
+    r.readAsDataURL(f);
+  });
+  input.value='';
+}
+function compress(dataUrl,cb){
+  const img=new Image();img.onload=()=>{
+    const max=1000;let w=img.width,h=img.height;if(w>max){h=h*w/max;w=max;}if(h>max){w=w*h/max;h=max;}
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.8));
+  };img.src=dataUrl;
+}
+function submitBook(){
+  if(!me)return;
+  curProj=$('#bkProj').value;
+  const bk={id:'b_'+Date.now(),date:curDate,time:curTime,proj:curProj,status:'pending',name:me.nickname,wechat:uid,contact:me.contact,note:$('#bkNote').value.trim(),images:bkImgs,createdAt:Date.now(),amount:null};
+  bookings.push(bk);save(K.book,bookings);
+  closeMask('bookMask');
+  $('#successMask').classList.add('show');
+}
+function closeSuccess(){
+  $('#successMask').classList.remove('show');
+  switchTab('mine');renderMine();
+}
+
+/* ====== 我的预约 ====== */
+function renderMine(){
+  const list=$('#mineList');list.innerHTML='';
+  const mine=bookings.filter(b=>b.wechat===uid).sort((a,b)=>b.createdAt-a.createdAt);
+  if(!mine.length){list.innerHTML='<div class="empty">还没有预约记录，去预约页挑个时段吧～</div>';return;}
+  mine.forEach(b=>{
+    const p=projByKey(b.proj)||proj[0];
+    const el=document.createElement('div');el.className='list-item';
+    el.innerHTML='<div style="flex:1"><div style="font-weight:600">'+b.date+' '+b.time+'</div><div style="font-size:12px;color:var(--text-light)">'+p.name+'</div></div>'+
+      '<span class="tag '+b.status+'">'+(b.status==='pending'?'待服务':b.status==='done'?'已完成':b.status==='cancel'?'已取消':'已超时')+'</span>';
+    list.appendChild(el);
+  });
+}
+
+/* ====== 图库（只读） ====== */
+function renderGal(){
+  const grid=$('#galGrid');grid.innerHTML='';
+  const gal=load(K.gal,[]);
+  if(!gal.length){grid.innerHTML='<div class="empty">暂无款式图</div>';return;}
+  gal.forEach(g=>{const i=document.createElement('img');i.src=g.img;i.alt=g.name;grid.appendChild(i);});
+}
+
+/* ====== AI 报价（规则匹配） ====== */
+function renderPriceQuick(){
+  const box=$('#priceQuick');box.innerHTML='';
+  proj.forEach(p=>{
+    const b=document.createElement('button');b.className='btn btn-ghost btn-sm';
+    b.textContent=p.name+' ¥'+(price.base[p.key]||0);
+    b.onclick=()=>quickQuote(p);box.appendChild(b);
+  });
+}
+function quickQuote(p){
+  pushChat('me','我想做'+p.name);
+  const base=price.base[p.key]||0;const dur=p.dur;
+  let msg=p.name+'：基础价 ¥'+base+'，服务时长约 '+dur+' 小时。';
+  if(price.addon.length)msg+=' 可加：'+price.addon.map(a=>a.name+'(+¥'+a.price+')').join('、')+'。';
+  if(price.remove)msg+=' 卸甲另收 ¥'+price.remove+'。';
+  pushChat('ai',msg);
+}
+function sendChat(){
+  const v=$('#chatInput').value.trim();if(!v)return;
+  pushChat('me',v);$('#chatInput').value='';
+  let reply='已收到～你可以告诉我想做的项目（本甲纯色/本甲款式/半贴纯色/半贴款式），或上传参考图，我帮你估算价格。';
+  const hit=proj.find(p=>v.includes(p.name));
+  if(hit)quickQuote(hit);
+  else pushChat('ai',reply);
+}
+function pushChat(role,text){
+  const box=$('#chatBox');const b=document.createElement('div');
+  b.className='bubble '+(role==='ai'?'ai':'me');b.textContent=text;box.appendChild(b);
+  box.scrollTop=box.scrollHeight;
+}
+
+/* ====== 教程（只读） ====== */
+function renderTut(){
+  const box=$('#tutList');box.innerHTML='';
+  if(!tut.length){box.innerHTML='<div class="empty">暂无教程</div>';return;}
+  tut.forEach(t=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<div class="card-title">'+esc(t.title)+'</div><div class="note" style="margin:0">'+esc(t.body)+'</div>';
+    box.appendChild(c);
+  });
+}
+
+/* ====== 分享 / 二维码 ====== */
+function clientUrl(){return location.origin+location.pathname;}
+function openShare(){
+  if(!window.qrcode){toast('二维码组件未加载');return;}
+  const url=clientUrl();
+  const qr=qrcode(0,'M');qr.addData(url);qr.make();
+  $('#qrImg').innerHTML=qr.createImgTag(6,8);
+  $('#shareUrl').value=url;
+  $('#shareMask').classList.add('show');
+}
+function copyShare(){
+  const t=$('#shareUrl').value;
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('链接已复制 ✓')).catch(()=>fallback(t));
+  else fallback(t);
+}
+function fallback(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('链接已复制 ✓');}catch(e){toast('请长按复制');}document.body.removeChild(ta);}
+function downloadQR(){
+  const img=$('#qrImg').querySelector('img');if(!img){toast('请先生成二维码');return;}
+  const a=document.createElement('a');a.href=img.src;a.download='小王美甲预约二维码.png';a.click();toast('已开始下载');
+}
+
+/* ====== tab 切换 ====== */
+function switchTab(v){
+  $all('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  $all('.page').forEach(p=>p.classList.remove('active'));
+  $('#pg-'+v).classList.add('active');
+  if(v==='mine')renderMine();if(v==='gal')renderGal();if(v==='price')renderPriceQuick();if(v==='tut')renderTut();
+}
+
+/* ====== 初始化 ====== */
+function applyShop(){
+  $('#shopName').textContent=shop.name;
+  $('#logoBox').textContent=shop.name.slice(0,1);
+  // 默认项目颜色映射用于开放时段展示：按顺序对应四个项目
+  if(!shop.channelOpen)$('#noticeBox').innerHTML='⚠️ 商家已临时关闭线上预约通道，暂不可预约。';
+  else $('#noticeBox').textContent=shop.notice;
+}
+applyShop();renderCal();refreshLoginUI();
+if(!shop.channelOpen){/* 通道关闭时日历显示暂停 */}
+</script>
+</body>
+</html>

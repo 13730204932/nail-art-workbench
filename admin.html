@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>小王美甲 · 管理后台</title>
+<style>
+:root{
+  --cream:#FBF6F0;--cream-2:#F5EDE3;--cream-3:#EFE3D6;
+  --pink:#F0C9B8;--pink-deep:#E8B5A0;--red:#D88B7A;--red-t:#C85A4A;
+  --brown:#8B6F5C;--brown-deep:#6B5444;--text:#5A4A3C;--text-light:#9B8A7A;
+  --green:#CDE3C4;--green-t:#5A7A4A;--purple:#E4D8F0;--blue:#D2E4F0;
+  --shadow:0 2px 12px rgba(139,111,92,.08);--radius:14px;--radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:var(--cream);color:var(--text);font-size:14px;line-height:1.5;padding-bottom:env(safe-area-inset-bottom);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);}
+input:focus,select:focus,textarea:focus{outline:none;}
+::-webkit-scrollbar{display:none;}
+.wrap{max-width:620px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(251,246,240,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--cream-3);padding:calc(env(safe-area-inset-top) + 10px) 14px 9px;display:flex;align-items:center;justify-content:space-between;}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.shop-name{font-weight:700;font-size:16px;color:var(--brown-deep);}
+.btn{background:var(--cream-2);color:var(--brown-deep);border-radius:var(--radius-sm);padding:9px 14px;font-size:14px;font-weight:600;}
+.btn:active{transform:scale(.96);}
+.btn-pri{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:var(--shadow);}
+.btn-ghost{background:transparent;border:1px solid var(--cream-3);color:var(--brown);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-sm{padding:6px 10px;font-size:12px;}
+.btn-block{width:100%;}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:var(--cream);border-bottom:1px solid var(--cream-3);position:sticky;top:calc(env(safe-area-inset-top) + 56px);z-index:40;}
+.tab{padding:7px 13px;border-radius:20px;background:var(--cream-2);color:var(--brown);white-space:nowrap;font-size:13px;font-weight:600;}
+.tab.active{background:var(--brown-deep);color:#fff;}
+.content{flex:1;overflow-y:auto;padding:14px 14px 90px;}
+.card{background:#fff;border:1px solid var(--cream-3);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-weight:700;font-size:15px;color:var(--brown-deep);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:12px;color:var(--brown);margin-bottom:4px;font-weight:600;}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--cream-3);border-radius:var(--radius-sm);padding:9px 11px;background:var(--cream);}
+.row{display:flex;gap:8px;align-items:center;}
+.row>*{flex:1;}
+.mini{font-size:11px;color:var(--text-light);}
+.item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--cream-3);}
+.item:last-child{border-bottom:none;}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--cream-2);color:var(--brown);white-space:nowrap;}
+.tag.done{background:var(--green);color:var(--green-t);}
+.tag.pending{background:var(--pink);color:var(--red-t);}
+.tag.cancel{background:#E0D9D0;color:#8A7B6B;}
+.tag.timeout{background:#F3D9D2;color:var(--red-t);}
+.tag.vip{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
+.tag.new{background:var(--blue);color:#3A6FA8;}
+.tag.old{background:var(--purple);color:#7A5A9A;}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.gal-cell{position:relative;}
+.gal-cell img{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;background:var(--cream-2);}
+.gal-cell .gname{font-size:11px;color:var(--brown);margin-top:3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gal-cell .gdel{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.stat{background:var(--cream-2);border-radius:12px;padding:12px;text-align:center;}
+.stat .n{font-size:22px;font-weight:800;color:var(--red-t);}
+.stat .l{font-size:11px;color:var(--brown);margin-top:2px;}
+.mask{position:fixed;inset:0;z-index:100;background:rgba(91,74,60,.45);display:none;align-items:center;justify-content:center;padding:18px;}
+.mask.show{display:flex;}
+.sheet{background:var(--cream);border-radius:18px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:18px;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sheet-head h3{font-size:17px;color:var(--brown-deep);}
+.sheet .close{font-size:20px;color:var(--text-light);width:30px;height:30px;}
+.bar-link{display:flex;gap:8px;margin-top:12px;}
+.bar-link .btn{flex:1;}
+.upload-add{width:100%;aspect-ratio:1;border:1.5px dashed var(--pink-deep);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--red-t);font-size:12px;}
+.upload-add .plus{font-size:28px;font-weight:300;}
+.fab{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom) + 70px);z-index:45;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;width:52px;height:52px;border-radius:50%;font-size:24px;box-shadow:0 4px 20px rgba(139,111,92,.2);}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(91,74,60,.92);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:200;opacity:0;transition:.25s;pointer-events:none;max-width:80%;text-align:center;}
+.toast.show{opacity:1;}
+.qr-box{text-align:center;background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;}
+.qr-box img{width:200px;height:200px;}
+.empty{text-align:center;color:var(--text-light);font-size:13px;padding:26px 0;}
+.switch{position:relative;width:46px;height:26px;background:var(--grey);border-radius:20px;transition:.2s;flex:0 0 auto;}
+.switch.on{background:var(--green-t);}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;}
+.switch.on::after{left:23px;}
+.seg{display:flex;gap:6px;margin-bottom:10px;}
+.seg button{flex:1;padding:7px;border-radius:8px;background:var(--cream-2);color:var(--brown);font-size:12px;font-weight:600;}
+.seg button.active{background:var(--brown-deep);color:#fff;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app" style="display:none;">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div class="logo" id="aLogo">王</div>
+      <div><div class="shop-name" id="aName">小王美甲</div><div class="mini" id="aSub">私密管理后台</div></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">退出</button>
+  </div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-t="sched" onclick="switchTab('sched')">排班</div>
+    <div class="tab" data-t="order" onclick="switchTab('order')">订单</div>
+    <div class="tab" data-t="gal" onclick="switchTab('gal')">图库</div>
+    <div class="tab" data-t="cust" onclick="switchTab('cust')">客户</div>
+    <div class="tab" data-t="price" onclick="switchTab('price')">报价</div>
+    <div class="tab" data-t="fin" onclick="switchTab('fin')">营收</div>
+    <div class="tab" data-t="tut" onclick="switchTab('tut')">教程</div>
+    <div class="tab" data-t="set" onclick="switchTab('set')">设置</div>
+    <div class="tab" data-t="log" onclick="switchTab('log')">提醒</div>
+  </div>
+  <div class="content" id="content"></div>
+  <button class="fab" id="fab" onclick="fabAction()">+</button>
+</div>
+
+<!-- 登录门禁 -->
+<div class="mask show" id="loginGate">
+  <div class="sheet" style="max-width:360px;">
+    <div class="sheet-head"><h3>管理员登录</h3></div>
+    <div class="field"><label>管理密码</label><input id="pin" type="password" placeholder="默认 1234" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-pri btn-block" onclick="doLogin()">进入后台</button>
+    <div class="mini" style="text-align:center;margin-top:10px;">默认密码 1234，可在「设置」中修改</div>
+  </div>
+</div>
+
+<!-- 通用弹窗 -->
+<div class="mask" id="sheetMask"><div class="sheet" id="sheetBody"></div></div>
+
+<script src="qrcode.js"></script>
+<script>
+/* ====== 数据层（后台全量读写） ====== */
+const K={shop:'mj_shop_v3',sched:'mj_sched_v3',proj:'mj_proj_v3',book:'mj_book_v3',gal:'mj_gal_v3',price:'mj_price_v3',tut:'mj_tut_v3',fin:'mj_fin_v3',cust:'mj_cust_v3',log:'mj_log_v3',pin:'mj_pin_v3',chat:'mj_chat_v3'};
+const defShop={name:'小王美甲',notice:'请按照预约时间准时到店；迟到超过 15 分钟，预约时段自动作废，需重新线上预约。临时无法到店请提前取消，避免占用档期。',channelOpen:true,closedDays:[]};
+const defSched={times:[{time:'10:00',proj:'bjs'},{time:'14:00',proj:'bjt'},{time:'16:00',proj:'btj'}]};
+const defProj=[{key:'bjs',name:'本甲纯色',color:'#CDE3C4',dur:1},{key:'bjt',name:'本甲款式',color:'#E4D8F0',dur:1.5},{key:'btj',name:'半贴纯色',color:'#F7DFD3',dur:1.5},{key:'btt',name:'半贴款式',color:'#D2E4F0',dur:2}];
+const defPrice={base:{bjs:99,bjt:159,btj:139,btt:199},addon:[{name:'简单饰品',price:15},{name:'复杂饰品',price:30}],remove:20,quotes:[]};
+const defTut=[{id:'t1',title:'新手如何跟顾客确认款式',body:'建议顾客先在图库选好参考图并上传，沟通时确认长度、形状、配色，避免返工。'},{id:'t2',title:'到店流程标准化',body:'洗手消毒→修甲形→推死皮→涂底胶→上色→封层→拍照。每步确认顾客满意度。'}];
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+let shop=load(K.shop,defShop),sched=load(K.sched,defSched),proj=load(K.proj,defProj),price=load(K.price,defPrice),tut=load(K.tut,defTut);
+let bookings=load(K.book,[]),gallery=load(K.gal,[]),fin=load(K.fin,[]),cust=load(K.cust,{}),logs=load(K.log,[]);
+function $(s){return document.querySelector(s);}function $all(s){return document.querySelectorAll(s);}
+function esc(t){return (t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function projByKey(k){return proj.find(p=>p.key===k);}
+function fmtDate(d){if(!(d instanceof Date))d=new Date(d);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtTime(ts){const d=new Date(ts);return fmtDate(d)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+
+/* 自动超时：pending 且超过预约时间+15分钟 → timeout，释放档期 */
+function autoTimeout(){
+  const now=Date.now();
+  bookings.forEach(b=>{
+    if(b.status==='pending'){
+      const dt=new Date(b.date+'T'+b.time);dt.setMinutes(dt.getMinutes()+15);
+      if(dt.getTime()<now){b.status='timeout';addLog('timeout','订单超时作废：'+b.name+' '+b.date+' '+b.time);}
+    }
+  });
+  save(K.book,bookings);
+}
+function addLog(type,msg){logs.unshift({t:Date.now(),type,msg});logs=logs.slice(0,200);save(K.log,logs);}
+function toast(m){let t=$('#toast');if(!t){t=document.createElement('div');t.className='toast';t.id='toast';document.body.appendChild(t);}t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function openSheet(html){$('#sheetBody').innerHTML=html;$('#sheetMask').classList.add('show');}
+function closeSheet(){$('#sheetMask').classList.remove('show');}
+
+/* ====== 登录 ====== */
+function doLogin(){
+  const pin=$('#pin').value.trim();const saved=localStorage.getItem(K.pin)||'1234';
+  if(pin===saved){$('#loginGate').classList.remove('show');$('#app').style.display='flex';initApp();}
+  else toast('密码错误');
+}
+function logout(){if(confirm('退出后台？')){location.reload();}}
+function initApp(){
+  autoTimeout();
+  $('#aName').textContent=shop.name;$('#aLogo').textContent=shop.name.slice(0,1);
+  switchTab('sched');renderAll();
+}
+function renderAll(){}
+
+/* ====== Tab ====== */
+let curTab='sched';
+function switchTab(t){curTab=t;$all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.t===t));
+  const fab={sched:'+',order:'+',gal:'+',cust:'',price:'+',fin:'+',tut:'+',set:'',log:''}[t];
+  $('#fab').style.display=fab?'flex':'none';$('#fab').textContent=fab||'+';
+  const c=$('#content');
+  if(t==='sched')c.innerHTML=viewSched();
+  else if(t==='order')c.innerHTML=viewOrders();
+  else if(t==='gal')c.innerHTML=viewGal();
+  else if(t==='cust')c.innerHTML=viewCust();
+  else if(t==='price')c.innerHTML=viewPrice();
+  else if(t==='fin')c.innerHTML=viewFin();
+  else if(t==='tut')c.innerHTML=viewTut();
+  else if(t==='set')c.innerHTML=viewSet();
+  else if(t==='log')c.innerHTML=viewLog();
+  if(t==='sched')bindSched();if(t==='order')bindOrders();if(t==='gal')bindGal();if(t==='cust')bindCust();
+  if(t==='price')bindPrice();if(t==='fin')bindFin();if(t==='tut')bindTut();if(t==='set')bindSet();if(t==='log')bindLog();
+}
+function fabAction(){
+  if(curTab==='sched')openSchedAdd();
+  else if(curTab==='order')openOrderAdd();
+  else if(curTab==='gal')document.getElementById('galFile').click();
+  else if(curTab==='price')openAddonAdd();
+  else if(curTab==='fin')openOfflineAdd();
+  else if(curTab==='tut')openTutEdit();
+}
+
+/* ====== 排班 ====== */
+function viewSched(){
+  let h='<div class="card"><div class="card-title">时段与项目设置<a class="mini">后台改，前端实时同步</a></div>';
+  sched.times.forEach((it,i)=>{
+    h+='<div class="row" style="margin-bottom:8px" data-i="'+i+'">'+
+      '<input class="st" type="time" value="'+it.time+'">'+
+      '<select class="sp">'+proj.map(p=>'<option value="'+p.key+'"'+(p.key===it.proj?' selected':'')+'>'+p.name+'</option>').join('')+'</select>'+
+      '<button class="btn btn-ghost btn-sm" onclick="moveTime('+i+',-1)">↑</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick="moveTime('+i+',1)">↓</button>'+
+      '<button class="btn btn-red btn-sm" onclick="delTime('+i+')">删</button></div>';
+  });
+  h+='<button class="btn btn-pri btn-block" onclick="addTime()">+ 新增时段</button></div>';
+  h+='<div class="card"><div class="card-title">项目配色与服务时长</div>';
+  proj.forEach((p,i)=>{
+    h+='<div class="row" style="margin-bottom:8px">'+
+      '<input class="pn" value="'+esc(p.name)+'" style="flex:1.2">'+
+      '<input class="pc" type="color" value="'+p.color+'" style="flex:0 0 44px;width:44px;height:38px;padding:2px">'+
+      '<input class="pd" type="number" step="0.5" value="'+p.dur+'" style="flex:0 0 60px" placeholder="h">'+
+      '<button class="btn btn-red btn-sm" onclick="delProj('+i+')">删</button></div>';
+  });
+  h+='<button class="btn btn-ghost btn-block" onclick="addProj()">+ 新增项目类型</button></div>';
+  h+='<div class="card"><div class="card-title">档期管控</div>';
+  h+='<div class="row"><button class="btn btn-ghost" onclick="lockToday()">锁定今天</button><button class="btn btn-ghost" onclick="toggleChannel()">'+(shop.channelOpen?'关闭预约通道':'开启预约通道')+'</button></div>';
+  h+='<button class="btn btn-red btn-block" style="margin-top:8px" onclick="clearAll()">一键清空全部档期（删除所有订单）</button></div>';
+  return h;
+}
+function bindSched(){
+  $all('#content .st').forEach((el,i)=>el.onchange=()=>{sched.times[i].time=el.value;save(K.sched,sched);toast('已保存');});
+  $all('#content .sp').forEach((el,i)=>el.onchange=()=>{sched.times[i].proj=el.value;save(K.sched,sched);});
+  $all('#content .pn').forEach((el,i)=>el.onchange=()=>{proj[i].name=el.value;save(K.proj,proj);});
+  $all('#content .pc').forEach((el,i)=>el.onchange=()=>{proj[i].color=el.value;save(K.proj,proj);});
+  $all('#content .pd').forEach((el,i)=>el.onchange=()=>{proj[i].dur=parseFloat(el.value)||1;save(K.proj,proj);});
+}
+function addTime(){sched.times.push({time:'18:00',proj:proj[0].key});save(K.sched,sched);switchTab('sched');}
+function moveTime(i,d){const j=i+d;if(j<0||j>=sched.times.length)return;[sched.times[i],sched.times[j]]=[sched.times[j],sched.times[i]];save(K.sched,sched);switchTab('sched');}
+function delTime(i){sched.times.splice(i,1);save(K.sched,sched);switchTab('sched');}
+function addProj(){proj.push({key:'p'+Date.now(),name:'新项目',color:'#CDE3C4',dur:1});save(K.proj,proj);switchTab('sched');}
+function delProj(i){proj.splice(i,1);save(K.proj,proj);switchTab('sched');}
+function lockToday(){const d=fmtDate(new Date());if(!shop.closedDays.includes(d))shop.closedDays.push(d);else shop.closedDays=shop.closedDays.filter(x=>x!==d);save(K.shop,shop);toast('今天'+(shop.closedDays.includes(d)?'已锁':'已解锁'));switchTab('sched');}
+function toggleChannel(){shop.channelOpen=!shop.channelOpen;save(K.shop,shop);addLog('set','预约通道'+(shop.channelOpen?'开启':'关闭'));switchTab('sched');}
+function clearAll(){if(!confirm('确定清空所有订单/档期？此操作不可恢复'))return;bookings=[];save(K.book,bookings);toast('已清空');switchTab('order');}
+
+/* ====== 订单 ====== */
+let orderFilter='all';
+function viewOrders(){
+  const seg='<div class="seg">'+[['all','全部'],['pending','待服务'],['done','已完成'],['cancel','已取消'],['timeout','已超时']].map(([k,l])=>'<button class="'+(orderFilter===k?'active':'')+'" onclick="setOF(\''+k+'\')">'+l+'</button>').join('')+'</div>';
+  let list=bookings.slice().sort((a,b)=>b.createdAt-a.createdAt);
+  if(orderFilter!=='all')list=list.filter(b=>b.status===orderFilter);
+  let h='<div class="card">'+seg+'<div id="orderList">';
+  if(!list.length)h+='<div class="empty">暂无订单</div>';
+  list.forEach(b=>{
+    const p=projByKey(b.proj)||proj[0];
+    h+='<div class="item"><div style="flex:1"><div style="font-weight:600">'+b.date+' '+b.time+' · '+p.name+'</div>'+
+      '<div class="mini">'+esc(b.name)+' / '+esc(b.contact)+(b.note?' / '+esc(b.note):'')+(b.images&&b.images.length?' / 图'+b.images.length:'')+'</div>'+
+      (b.amount!=null?'<div class="mini">实收 ¥'+b.amount+'</div>':'')+'</div>'+
+      '<span class="tag '+b.status+'">'+(b.status==='pending'?'待服务':b.status==='done'?'已完成':b.status==='cancel'?'已取消':'已超时')+'</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="orderMenu(\''+b.id+'\')">···</button></div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+function setOF(k){orderFilter=k;switchTab('order');}
+function bindOrders(){}
+function orderMenu(id){
+  const b=bookings.find(x=>x.id===id);if(!b)return;
+  let h='<div class="sheet-head"><h3>订单操作</h3><button class="close" onclick="closeSheet()">✕</button></div>';
+  h+='<div class="mini" style="margin-bottom:10px">'+b.date+' '+b.time+' · '+(projByKey(b.proj)||proj[0]).name+'</div>';
+  if(b.status!=='done')h+='<button class="btn btn-pri btn-block" onclick="markDone(\''+id+'\')">标记已完成（填写金额自动记账）</button>';
+  if(b.status==='pending')h+='<button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="cancelOrder(\''+id+'\')">取消订单</button>';
+  h+='<button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="editOrder(\''+id+'\')">编辑信息</button>';
+  h+='<button class="btn btn-red btn-block" style="margin-top:8px" onclick="delOrder(\''+id+'\')">删除订单</button>';
+  openSheet(h);
+}
+function markDone(id){
+  const b=bookings.find(x=>x.id===id);if(!b)return;
+  openSheet('<div class="sheet-head"><h3>标记完成 · 自动记账</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+    '<div class="field"><label>实收金额（含基础费/饰品/卸甲）</label><input id="amt" type="number" value="'+(price.base[b.proj]||0)+'"></div>'+
+    '<div class="bar-link"><button class="btn btn-ghost" onclick="closeSheet()">取消</button><button class="btn btn-pri" onclick="confirmDone(\''+id+'\')">确认入账</button></div>');
+}
+function confirmDone(id){
+  const b=bookings.find(x=>x.id===id);if(!b)return;
+  const amt=parseFloat($('#amt').value)||0;b.status='done';b.amount=amt;save(K.book,bookings);
+  fin.push({id:'f'+Date.now(),date:b.date,amount:amt,orderId:b.id,source:'order',cust:b.name,proj:(projByKey(b.proj)||proj[0]).name,note:'订单完成'});save(K.fin,fin);
+  addLog('done','订单完成入账 ¥'+amt+'：'+b.name+' '+b.date+' '+b.time);
+  upsertCust(b,wechatOf(b),amt);
+  closeSheet();toast('已记账 ¥'+amt);switchTab('order');
+}
+function cancelOrder(id){const b=bookings.find(x=>x.id===id);if(!b)return;if(!confirm('取消该订单？'))return;b.status='cancel';save(K.book,bookings);addLog('cancel','取消订单：'+b.name+' '+b.date+' '+b.time);switchTab('order');}
+function delOrder(id){if(!confirm('删除该订单？'))return;bookings=bookings.filter(x=>x.id!==id);save(K.book,bookings);closeSheet();switchTab('order');}
+function editOrder(id){
+  const b=bookings.find(x=>x.id===id);if(!b)return;
+  openSheet('<div class="sheet-head"><h3>编辑订单</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+    '<div class="field"><label>日期</label><input id="eDate" type="date" value="'+b.date+'"></div>'+
+    '<div class="field"><label>时间</label><input id="eTime" type="time" value="'+b.time+'"></div>'+
+    '<div class="field"><label>项目</label><select id="eProj">'+proj.map(p=>'<option value="'+p.key+'"'+(p.key===b.proj?' selected':'')+'>'+p.name+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>姓名</label><input id="eName" value="'+esc(b.name)+'"></div>'+
+    '<div class="field"><label>联系方式</label><input id="eContact" value="'+esc(b.contact)+'"></div>'+
+    '<div class="field"><label>备注</label><textarea id="eNote">'+esc(b.note)+'</textarea></div>'+
+    '<button class="btn btn-pri btn-block" onclick="saveEdit(\''+id+'\')">保存</button>');
+}
+function saveEdit(id){const b=bookings.find(x=>x.id===id);if(!b)return;b.date=$('#eDate').value;b.time=$('#eTime').value;b.proj=$('#eProj').value;b.name=$('#eName').value;b.contact=$('#eContact').value;b.note=$('#eNote').value;save(K.book,bookings);closeSheet();switchTab('order');toast('已保存');}
+function openOrderAdd(){
+  openSheet('<div class="sheet-head"><h3>手动新增订单</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+    '<div class="field"><label>日期</label><input id="nDate" type="date" value="'+fmtDate(new Date())+'"></div>'+
+    '<div class="field"><label>时间</label><select id="nTime">'+sched.times.map(t=>'<option>'+t.time+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>项目</label><select id="nProj">'+proj.map(p=>'<option value="'+p.key+'">'+p.name+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>姓名</label><input id="nName"></div>'+
+    '<div class="field"><label>联系方式</label><input id="nContact"></div>'+
+    '<div class="field"><label>备注</label><textarea id="nNote"></textarea></div>'+
+    '<button class="btn btn-pri btn-block" onclick="addOrder()">添加</button>');
+}
+function addOrder(){const b={id:'b'+Date.now(),date:$('#nDate').value,time:$('#nTime').value,proj:$('#nProj').value,status:'pending',name:$('#nName').value,contact:$('#nContact').value,note:$('#nNote').value,images:[],createdAt:Date.now(),amount:null};bookings.push(b);save(K.book,bookings);closeSheet();switchTab('order');toast('已添加');}
+
+/* ====== 图库 ====== */
+function viewGal(){
+  let h='<div class="card"><div class="card-title">款式图库（可批量上传）</div><div class="gal-grid" id="galGrid">';
+  gallery.forEach((g,i)=>{h+='<div class="gal-cell"><img src="'+g.img+'" onclick="openGalEdit('+i+')"><div class="gname">'+esc(g.name||'款式')+'</div><div class="gdel" onclick="delGal('+i+')">✕</div></div>';});
+  h+='<div class="gal-cell"><div class="upload-add" onclick="document.getElementById(\'galFile\').click()"><span class="plus">+</span>上传</div></div>';
+  h+='</div><input type="file" id="galFile" accept="image/*" multiple style="display:none" onchange="handleGal(this)"></div>';
+  return h;
+}
+function bindGal(){}
+function handleGal(input){const files=Array.from(input.files);files.forEach(f=>{const r=new FileReader();r.onload=e=>compress(e.target.result,src=>{gallery.push({id:'g'+Date.now()+Math.random(),name:'款式'+(gallery.length+1),cat:'',img:src});save(K.gal,gallery);});r.readAsDataURL(f);});input.value='';switchTab('gal');}
+function delGal(i){gallery.splice(i,1);save(K.gal,gallery);switchTab('gal');}
+function openGalEdit(i){const g=gallery[i];openSheet('<div class="sheet-head"><h3>编辑图片</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+  '<img src="'+g.img+'" style="width:100%;border-radius:10px;margin-bottom:10px">'+
+  '<div class="field"><label>名称</label><input id="gName" value="'+esc(g.name)+'"></div>'+
+  '<div class="field"><label>分类</label><input id="gCat" value="'+esc(g.cat)+'" placeholder="如：纯色/款式/节日"></div>'+
+  '<button class="btn btn-pri btn-block" onclick="saveGal('+i+')">保存</button>');}
+function saveGal(i){gallery[i].name=$('#gName').value;gallery[i].cat=$('#gCat').value;save(K.gal,gallery);closeSheet();switchTab('gal');}
+function compress(dataUrl,cb){const img=new Image();img.onload=()=>{const max=1200;let w=img.width,h=img.height;if(w>max){h=h*w/max;w=max;}if(h>max){w=w*h/max;h=max;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',0.82));};img.src=dataUrl;}
+
+/* ====== 客户 ====== */
+function wechatOf(b){return b.wechat||('c_'+b.contact);}
+function upsertCust(b,wx,amt){
+  if(!cust[wx])cust[wx]={nickname:b.name,contact:b.contact,tags:[],total:0,count:0,noShow:0};
+  cust[wx].total+=amt;cust[wx].count++;cust[wx].nickname=b.name;cust[wx].contact=b.contact;
+  // 标签自动判定
+  const c=cust[wx];
+  if(c.count>=3&&!c.tags.includes('VIP')){if(!c.tags.includes('old'))c.tags.push('old');}
+  save(K.cust,cust);
+}
+function viewCust(){
+  // 从订单聚合
+  const map={};
+  bookings.forEach(b=>{const wx=wechatOf(b);if(!map[wx])map[wx]={nickname:b.name,contact:b.contact,done:0,total:0,noShow:0,count:0};const m=map[wx];m.count++;if(b.status==='done'){m.done++;m.total+=b.amount||0;}if(b.status==='timeout')m.noShow++;});
+  Object.keys(cust).forEach(wx=>{if(!map[wx])map[wx]={nickname:cust[wx].nickname,contact:cust[wx].contact,done:0,total:0,noShow:cust[wx].noShow||0,count:0};});
+  const ids=Object.keys(map);
+  let h='<div class="card"><div class="card-title">客户档案（'+ids.length+' 人）</div>';
+  if(!ids.length)h+='<div class="empty">暂无客户</div>';
+  ids.forEach(wx=>{const m=map[wx];const c=cust[wx]||{};const tags=(c.tags||[]).map(t=>'<span class="tag '+t+'">'+(t==='VIP'?'VIP':t==='old'?'老客':'新客')+'</span>').join(' ');
+    h+='<div class="item"><div style="flex:1"><div style="font-weight:600">'+esc(m.nickname)+' '+tags+'</div>'+
+      '<div class="mini">'+esc(m.contact)+' · 完成 '+m.done+' 单 · 消费 ¥'+(m.total||0)+(m.noShow?' · 爽约 '+m.noShow:'')+'</div></div>'+
+      '<button class="btn btn-ghost btn-sm" onclick="tagMenu(\''+wx+'\')">标签</button></div>';
+  });
+  h+='</div>';return h;
+}
+function bindCust(){}
+function tagMenu(wx){
+  const c=cust[wx]||{tags:[]};const tags=['新客','老客','VIP'];
+  let h='<div class="sheet-head"><h3>客户标签</h3><button class="close" onclick="closeSheet()">✕</button></div>';
+  tags.forEach(t=>{const on=(c.tags||[]).includes(t);h+='<button class="btn '+(on?'btn-pri':'btn-ghost')+' btn-block" style="margin-bottom:8px" onclick="toggleTag(\''+wx+'\',\''+t+'\')">'+(on?'✓ ':'')+t+'</button>';});
+  openSheet(h);
+}
+function toggleTag(wx,t){if(!cust[wx])cust[wx]={nickname:'',contact:'',tags:[],total:0,count:0,noShow:0};if(!cust[wx].tags)cust[wx].tags=[];const i=cust[wx].tags.indexOf(t);if(i>=0)cust[wx].tags.splice(i,1);else cust[wx].tags.push(t);save(K.cust,cust);closeSheet();switchTab('cust');}
+
+/* ====== 报价 ====== */
+function viewPrice(){
+  let h='<div class="card"><div class="card-title">项目基础单价</div>';
+  proj.forEach(p=>{h+='<div class="row" style="margin-bottom:8px"><span style="flex:1.5;font-weight:600">'+p.name+'</span><input class="bp" data-k="'+p.key+'" type="number" value="'+(price.base[p.key]||0)+'" style="flex:1"></div>';});
+  h+='<div class="field" style="margin-top:8px"><label>卸甲费用</label><input id="rmFee" type="number" value="'+price.remove+'"></div></div>';
+  h+='<div class="card"><div class="card-title">附加项目<a class="mini">点 + 新增</a></div><div id="addonList">';
+  price.addon.forEach((a,i)=>{h+='<div class="row" style="margin-bottom:8px"><input class="an" data-i="'+i+'" value="'+esc(a.name)+'" style="flex:1.5"><input class="ap" data-i="'+i+'" type="number" value="'+a.price+'" style="flex:1"><button class="btn btn-red btn-sm" onclick="delAddon('+i+')">删</button></div>';});
+  h+='</div></div>';
+  h+='<div class="card"><div class="card-title">客户报价对话记录</div><div id="chatLog">';
+  const chats=load(K.chat,[]);
+  if(!chats.length)h+='<div class="empty">暂无对话记录（需在客户端产生）</div>';
+  else chats.slice(0,30).forEach(c=>{h+='<div class="mini" style="margin:4px 0">['+fmtTime(c.t)+'] '+esc(c.nick)+'：'+esc(c.text)+'</div>';});
+  h+='</div><div class="mini">注：客户端的 AI 报价对话会暂存于本地，跨设备需在客户端查看。</div></div>';
+  return h;
+}
+function bindPrice(){
+  $all('#content .bp').forEach(el=>el.onchange=()=>{price.base[el.dataset.k]=parseFloat(el.value)||0;save(K.price,price);});
+  $('#rmFee').onchange=()=>{price.remove=parseFloat($('#rmFee').value)||0;save(K.price,price);};
+  $all('#content .an').forEach(el=>el.onchange=()=>{price.addon[el.dataset.i].name=el.value;save(K.price,price);});
+  $all('#content .ap').forEach(el=>el.onchange=()=>{price.addon[el.dataset.i].price=parseFloat(el.value)||0;save(K.price,price);});
+}
+function openAddonAdd(){price.addon.push({name:'新附加',price:10});save(K.price,price);switchTab('price');}
+function delAddon(i){price.addon.splice(i,1);save(K.price,price);switchTab('price');}
+
+/* ====== 营收 ====== */
+function weekOf(d){const dt=new Date(d);const dow=(dt.getDay()+6)%7;const mon=new Date(dt);mon.setDate(dt.getDate()-dow);mon.setHours(0,0,0,0);return fmtDate(mon);}
+function monthOf(d){return d.slice(0,7);}
+function viewFin(){
+  const today=fmtDate(new Date());const wk=weekOf(today);const mo=monthOf(today);
+  const sum=k=>fin.filter(f=>k(f.date)).reduce((s,f)=>s+f.amount,0);
+  const todayS=sum(d=>d===today),weekS=sum(d=>weekOf(d)===wk),monthS=sum(d=>monthOf(d)===mo);
+  let h='<div class="card"><div class="stat-grid">'+
+    '<div class="stat"><div class="n">'+todayS+'</div><div class="l">今日营收</div></div>'+
+    '<div class="stat"><div class="n">'+weekS+'</div><div class="l">本周营收</div></div>'+
+    '<div class="stat"><div class="n">'+monthS+'</div><div class="l">本月营收</div></div></div></div>';
+  h+='<div class="card"><div class="card-title">台账明细（自动+手动）</div><div id="finList">';
+  const list=fin.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(!list.length)h+='<div class="empty">暂无营收记录</div>';
+  list.forEach(f=>{h+='<div class="item"><div style="flex:1"><div style="font-weight:600">'+f.date+' · ¥'+f.amount+'</div><div class="mini">'+(f.source==='order'?'订单·':'线下·')+esc(f.cust||'')+' '+(f.proj||'')+(f.note?' · '+esc(f.note):'')+'</div></div>'+(f.source==='offline'?'<button class="btn btn-ghost btn-sm" onclick="delFin(\''+f.id+'\')">删</button>':'')+'</div>';});
+  h+='</div></div>';
+  return h;
+}
+function bindFin(){}
+function openOfflineAdd(){openSheet('<div class="sheet-head"><h3>补录线下订单</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+  '<div class="field"><label>日期</label><input id="oDate" type="date" value="'+fmtDate(new Date())+'"></div>'+
+  '<div class="field"><label>金额</label><input id="oAmt" type="number" placeholder="0"></div>'+
+  '<div class="field"><label>备注</label><input id="oNote" placeholder="如：到店散客"></div>'+
+  '<button class="btn btn-pri btn-block" onclick="addOffline()">计入台账</button>');}
+function addOffline(){const amt=parseFloat($('#oAmt').value)||0;fin.push({id:'f'+Date.now(),date:$('#oDate').value,amount:amt,source:'offline',cust:'',proj:'',note:$('#oNote').value});save(K.fin,fin);closeSheet();switchTab('fin');toast('已补录 ¥'+amt);}
+function delFin(id){if(!confirm('删除该笔营收？'))return;fin=fin.filter(f=>f.id!==id);save(K.fin,fin);switchTab('fin');}
+
+/* ====== 教程 ====== */
+function viewTut(){
+  let h='<div class="card"><div class="card-title">运营教程（可增删改）</div>';
+  if(!tut.length)h+='<div class="empty">暂无教程</div>';
+  tut.forEach((t,i)=>{h+='<div class="item"><div style="flex:1"><div style="font-weight:600">'+esc(t.title)+'</div><div class="mini">'+esc(t.body).slice(0,40)+'</div></div><button class="btn btn-ghost btn-sm" onclick="openTutEdit('+i+')">编辑</button><button class="btn btn-red btn-sm" onclick="delTut('+i+')">删</button></div>';});
+  h+='</div>';return h;
+}
+function bindTut(){}
+function openTutEdit(i){const t=i==null?{id:'t'+Date.now(),title:'',body:''}:tut[i];const idx=i==null?-1:i;
+  openSheet('<div class="sheet-head"><h3>'+(idx<0?'新增教程':'编辑教程')+'</h3><button class="close" onclick="closeSheet()">✕</button></div>'+
+    '<div class="field"><label>标题</label><input id="tTitle" value="'+esc(t.title)+'"></div>'+
+    '<div class="field"><label>内容</label><textarea id="tBody" rows="4">'+esc(t.body)+'</textarea></div>'+
+    '<button class="btn btn-pri btn-block" onclick="saveTut('+idx+')">保存</button>');}
+function saveTut(idx){const title=$('#tTitle').value.trim(),body=$('#tBody').value.trim();if(!title){toast('请填标题');return;}if(idx<0)tut.push({id:'t'+Date.now(),title,body});else tut[idx]={id:tut[idx].id,title,body};save(K.tut,tut);closeSheet();switchTab('tut');}
+function delTut(i){if(!confirm('删除该教程？'))return;tut.splice(i,1);save(K.tut,tut);switchTab('tut');}
+
+/* ====== 设置 ====== */
+function viewSet(){
+  let h='<div class="card"><div class="card-title">店铺设置</div>'+
+    '<div class="field"><label>店铺名称</label><input id="sName" value="'+esc(shop.name)+'"></div>'+
+    '<div class="field"><label>预约须知（迟到 15 分钟重约规则）</label><textarea id="sNotice" rows="3">'+esc(shop.notice)+'</textarea></div>'+
+    '<div class="row" style="margin:8px 0"><span>线上预约通道</span><div class="switch '+(shop.channelOpen?'on':'')+'" onclick="toggleChannel();switchTab(\'set\')"></div></div>'+
+    '<div class="field" style="margin-top:8px"><label>管理密码</label><input id="sPin" placeholder="修改后用于登录"></div>'+
+    '<button class="btn btn-pri btn-block" onclick="saveSet()">保存设置</button></div>';
+  h+='<div class="card"><div class="card-title">预约链接与二维码</div>';
+  h+='<div class="mini" style="margin-bottom:8px">客户扫码/打开此链接直达预约页，看不到本后台。</div>';
+  const url=clientUrl();
+  if(window.qrcode){const qr=qrcode(0,'M');qr.addData(url);qr.make();h+='<div class="qr-box">'+qr.createImgTag(5,6)+'</div>';}
+  h+='<div class="field"><input id="setUrl" readonly value="'+esc(url)+'"></div>'+
+    '<div class="bar-link"><button class="btn btn-pri btn-block" onclick="copySet()">复制链接</button><button class="btn btn-ghost" onclick="dlSet()">下载码</button></div>'+
+    '<button class="btn btn-red btn-block" style="margin-top:10px" onclick="resetChannel()">重置预约通道（关闭并重新开启）</button></div>';
+  return h;
+}
+function bindSet(){}
+function clientUrl(){const base=location.href.split('?')[0].split('#')[0];return base.replace(/admin\.html$/,'index.html');}
+function saveSet(){shop.name=$('#sName').value.trim()||shop.name;shop.notice=$('#sNotice').value.trim();const pin=$('#sPin').value.trim();if(pin){localStorage.setItem(K.pin,pin);}save(K.shop,shop);toast('已保存');switchTab('set');}
+function copySet(){const t=$('#setUrl').value;if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('已复制')).catch(()=>fb(t));else fb(t);}
+function fb(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制');}catch(e){}document.body.removeChild(ta);}
+function dlSet(){const img=$('#content .qr-box img');if(!img){toast('请刷新生成');return;}const a=document.createElement('a');a.href=img.src;a.download='预约二维码.png';a.click();}
+function resetChannel(){shop.channelOpen=false;save(K.shop,shop);setTimeout(()=>{shop.channelOpen=true;save(K.shop,shop);switchTab('set');toast('通道已重置');},300);}
+
+/* ====== 提醒日志 ====== */
+function viewLog(){
+  let h='<div class="card"><div class="card-title">实时提醒 / 操作日志</div>';
+  if(!logs.length)h+='<div class="empty">暂无记录</div>';
+  logs.forEach(l=>{h+='<div class="item"><div style="flex:1"><div class="mini">'+fmtTime(l.t)+'</div><div>'+esc(l.msg)+'</div></div></div>';});
+  h+='</div>';return h;
+}
+function bindLog(){}
+
+/* 初始化若未登录则停留门禁 */
+if(localStorage.getItem(K.pin)===null){/* 默认 1234 */}
+</script>
+</body>
+</html>
